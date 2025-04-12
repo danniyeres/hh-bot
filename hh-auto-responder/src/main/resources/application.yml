@@ -1,0 +1,23 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hh_bot
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+telegram:
+  bot:
+    token: 8188873554:AAFfoAktxKOp_F7EZ22vxxpyoBPoXbq-ifM
+
+
+hh:
+  client:
+    id: MPRL181FMK9M8VTQDMD3VPABPG34PAM2DGM2E0FAAFVM49F6BVE04R143FK5ROJ0
+    secret: Q48H1PKO0F0UDE7H4QFUUDRHD6RCMRLII6LNV9UN3242GUICB1O5V3422IMSJ000
+  redirect:
+    uri: http://localhost:8080/oauth/callback
