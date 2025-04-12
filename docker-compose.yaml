@@ -1,0 +1,53 @@
+services:
+
+  telegram-bot:
+    build:
+      context: ./telegram-bot
+      dockerfile: Dockerfile
+    container_name: telegram-bot
+    env_file:
+      - ./telegram-bot/.env
+    restart:
+        always
+    depends_on:
+      - hh-auto-responder
+
+
+  hh-auto-responder:
+    build:
+      context: ./hh-auto-responder
+      dockerfile: Dockerfile
+    container_name: hh-auto-responder
+    ports:
+      - "8080:8080"
+    networks:
+      - hh-bot-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17.4-alpine
+    restart: "no"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hh-bot
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+
+
+networks:
+  hh-bot-network:
+    driver: bridge
+
+
+volumes:
+  postgres_data:

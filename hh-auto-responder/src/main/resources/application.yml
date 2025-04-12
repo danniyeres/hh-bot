@@ -1,5 +1,8 @@
 
 spring:
+  application:
+    name: hh-auto-responder
+
   datasource:
     url: jdbc:postgresql://localhost:5432/hh_bot
     username: postgres
@@ -21,3 +24,7 @@ hh:
     secret: Q48H1PKO0F0UDE7H4QFUUDRHD6RCMRLII6LNV9UN3242GUICB1O5V3422IMSJ000
   redirect:
     uri: http://localhost:8080/oauth/callback
+
+
+server:
+  port: 8080
