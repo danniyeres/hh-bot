@@ -45,4 +45,9 @@ public class HhAuthController {
     public UserDto getUser(@RequestParam Long userId) {
         return hhAuthService.getUser(userId);
     }
+
+    @GetMapping("/telegram_user/{telegramId}")
+    public UserDto getUserByTelegramId(@PathVariable String telegramId) {
+        return hhAuthService.getUserByTelegramId(telegramId);
+    }
 }

@@ -12,6 +12,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Service
 @Slf4j
 public class HhVacancyService {
@@ -32,7 +35,7 @@ public class HhVacancyService {
 
         var uri = UriComponentsBuilder
                 .fromUriString("https://api.hh.ru/vacancies")
-                .queryParam("text", searchText)
+                .queryParam("text", encodeValue(searchText))
                 .queryParam("per_page", 20)
                 .queryParam("page", 0);
 
@@ -48,26 +51,23 @@ public class HhVacancyService {
                 .block();
     }
 
-    public void sendResponse(String telegramId, String searchText, String area) {
+    public void sendResponse(String telegramId, String searchText, String area, String message) {
         var user = userRepository.findByTelegramId(telegramId);
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
         Long userId = user.getUserId();
-        System.out.println("User ID: " + userId);
-        System.out.println(searchText);
-        if (area != null && !area.isBlank()) {
-            System.out.println(area);
-            sendResponse(userId, searchText, area);
-        }
-        sendResponse(userId, searchText, null);
+        String finalArea = (area != null && !area.isBlank()) ? area : null;
+        String finalMessage = (message != null && !message.isBlank()) ? message : null;
+
+        sendResponse(userId, searchText, finalArea, finalMessage);
     }
 
-    public void sendResponse(Long userId, String searchText, String area) {
+    public void sendResponse(Long userId, String searchText, String area, String message) {
         var items = getVacancies(userId, searchText, area);
 
         if (items != null && items.getItems() != null) {
-            int count = Math.min(items.getItems().size(), 3);
+            int count = Math.min(items.getItems().size(), 30);
             String resumeId = resumeService.getResumes(userId).getItems().get(0).getId();
 
             for (int i = 0; i < count; i++) {
@@ -76,7 +76,10 @@ public class HhVacancyService {
 
                 if (resumeId != null && vacancyId != null) {
                     try {
-                        sendResponseToVacancy(userId, vacancyId, resumeId);
+                        if (message != null) {
+                            sendResponseToVacancy(userId, vacancyId, resumeId, message);
+                        }
+                        sendResponseToVacancy(userId, vacancyId, resumeId, null);
                     } catch (Exception e) {
                         log.error("Failed to send response to vacancy: {} with resume: {}", vacancyId, resumeId);
                         continue;
@@ -92,15 +95,23 @@ public class HhVacancyService {
         }
     }
 
-    private void sendResponseToVacancy(Long userId, String vacancyId, String resumeId) {
+    private void sendResponseToVacancy(Long userId, String vacancyId, String resumeId, String message) {
         var accessToken = tokenProvider.getValidAccessToken(userId);
+
+        var bodyValues = "vacancy_id=" + encodeValue(vacancyId) + "&resume_id=" + encodeValue(resumeId) + "&message=" + encodeValue(message);
+        if (message == null){
+            bodyValues = "vacancy_id=" + encodeValue(vacancyId) + "&resume_id=" + encodeValue(resumeId);
+        } else if (message.equals("null")) {
+            bodyValues = "vacancy_id=" + encodeValue(vacancyId) + "&resume_id=" + encodeValue(resumeId);
+        }
+
         try {
             webClient.post()
                     .uri("https://api.hh.ru/negotiations")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                     .header("HH-User-Agent", "HH-bot/1.0 (eleusizdaniyar777@gmail.com)")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .bodyValue("vacancy_id=" + vacancyId + "&resume_id=" + resumeId)
+                    .bodyValue(bodyValues)
                     .retrieve()
                     .onStatus(HttpStatus.BAD_REQUEST::equals, response -> response.bodyToMono(String.class)
                             .flatMap(body -> {
@@ -126,5 +137,9 @@ public class HhVacancyService {
             log.error("Failed to respond to vacancy: {}", e.getMessage());
             throw new RuntimeException("HH API Error: " + e.getMessage());
         }
+    }
+
+    private String encodeValue(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

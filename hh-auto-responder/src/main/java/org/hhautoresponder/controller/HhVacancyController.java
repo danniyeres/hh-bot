@@ -21,20 +21,28 @@ public class HhVacancyController {
      }
 
      @PostMapping("/send_response")
-     public String sendResponse(@RequestParam Long userId, @RequestParam String searchText, @RequestParam (required = false) String area) {
-         if (area == null || area.isBlank()) {
-             hhVacancyService.sendResponse(userId, searchText, null);
-         }
-         hhVacancyService.sendResponse(userId, searchText, area);
+     public String sendResponse(@RequestParam Long userId,
+                                @RequestParam String searchText,
+                                @RequestParam (required = false) String area,
+                                @RequestParam (required = false) String message) {
+
+         String finalArea = (area == null || area.isEmpty()) ? null : area;
+         String finalMessage = (message == null || message.isEmpty()) ? null : message;
+
+         hhVacancyService.sendResponse(userId, searchText, finalArea, finalMessage);
          return "Response sent";
      }
 
+
      @PostMapping("/response")
-     public String response(@RequestParam String telegram_id, @RequestParam String search_text, @RequestParam String area) {
-         if (area == null || area.isBlank()) {
-             hhVacancyService.sendResponse(telegram_id, search_text, "40");
-         }
-         hhVacancyService.sendResponse(telegram_id, search_text, area);
+     public String response(@RequestParam String telegram_id,
+                            @RequestParam String search_text,
+                            @RequestParam (required = false) String area,
+                            @RequestParam (required = false) String message) {
+
+         String finalArea = (area == null || area.isEmpty()) ? null : area;
+         String finalMessage = (message == null || message.isEmpty()) ? null : message;
+         hhVacancyService.sendResponse(telegram_id, search_text, finalArea, finalMessage);
          return "Response sent";
      }
 }

@@ -53,6 +53,15 @@ public class HhAuthService{
         return userMapper.toDto(user);
     }
 
+    public UserDto getUserByTelegramId (String telegramId){
+        var user = userRepository.findByTelegramId(telegramId);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        log.info("User found by telegramId: {}", user.getTelegramId());
+        return userMapper.toDto(user);
+    }
+
     public UserDto getUserDtoInfo(String accessToken) {
         var userDto = webClient.get()
                 .uri("https://api.hh.ru/me")

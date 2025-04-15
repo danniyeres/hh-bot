@@ -9,13 +9,27 @@ router = router.Router()
 @router.message(Command("start"))
 async def start(message:Message):
 
-    telegram_id = message.from_user.id
-    chat_id = message.chat.id
-    state_data = f"{telegram_id}:{chat_id}"
+    try:
+        telegram_id = str(message.from_user.id)
 
-    auth_url = f"{api.auth_user()}&state={state_data}"
+        if api.is_authorized(telegram_id):
+            await message.answer("Вы уже авторизованы.")
+            return
 
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔗 Авторизоваться в HH", url=auth_url)]
-    ])
-    await message.answer("Привет! Авторизуйся в hh.ru, чтобы бот мог откликаться на вакансии.", reply_markup=keyboard)
+        chat_id = message.chat.id
+        state_data = f"{telegram_id}:{chat_id}"
+        auth_url = f"{api.auth_user_url()}&state={state_data}"
+
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="🔗 Авторизоваться в HH", url=auth_url)]
+        ])
+
+        await message.answer("Привет! Авторизуйся в hh.ru, чтобы бот мог откликаться на вакансии.", reply_markup=keyboard)
+
+        if api.is_authorized(telegram_id):
+            await message.answer("Вы авторизованы. Теперь вы можете использовать бота.")
+            return
+
+    except Exception as e:
+        await message.answer("Произошла ошибка. Пожалуйста, попробуйте позже.")
+        print(f"Error in start command: {e}")

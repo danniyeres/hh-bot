@@ -3,6 +3,9 @@ spring:
   application:
     name: hh-auto-responder
 
+  config:
+    import: optional:classpath:application-secret.yml
+
   datasource:
     url: jdbc:postgresql://localhost:5432/hh_bot
     username: ${postgres.username}
