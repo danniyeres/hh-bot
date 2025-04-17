@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
 
   telegram-bot:
@@ -20,28 +22,31 @@ services:
     container_name: hh-auto-responder
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://hh_postgres_db:5432/hh_bot
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     networks:
       - hh-bot-network
     depends_on:
-      - postgres
+      - hh_postgres_db
 
-  postgres:
-    image: postgres:17.4-alpine
-    restart: "no"
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+
+  hh_postgres_db:
+    image: postgres:alpine
+    container_name: hh_postgres_db
     environment:
+      POSTGRES_DB: hh_bot
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: hh-bot
-    healthcheck:
-      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
-      interval: 10s
-      timeout: 5s
-      start_period: 10s
-      retries: 5
+      POSTGRESQL_EFFECTIVE_CACHE_SIZE: 256MB
+      POSTGRESQL_SHARED_BUFFERS: 128MB
+    ports:
+      - "5432:5432"
+    networks:
+      - hh-bot-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 
 networks:
