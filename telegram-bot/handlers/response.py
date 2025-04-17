@@ -131,9 +131,6 @@ async def process_message(message: types.Message, state: FSMContext):
 
     except Exception as e:
         logger.error(f"Error in process_message: {e}")
-        await message.answer(
-            "⚠️ Произошла ошибка. Пожалуйста, попробуйте позже."
-        )
 
 
 @router.message(F.text == "Отмена")

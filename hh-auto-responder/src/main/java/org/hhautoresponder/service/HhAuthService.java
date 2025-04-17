@@ -2,6 +2,7 @@ package org.hhautoresponder.service;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hhautoresponder.config.HhApiConfig;
 import org.hhautoresponder.dto.resume.ResumeDto;
 import org.hhautoresponder.dto.resume.ResumeResponseDto;
 import org.hhautoresponder.dto.user.OAuthResponse;
@@ -24,14 +25,9 @@ import java.util.List;
 @Slf4j
 public class HhAuthService{
 
-    @Value("${hh.client.id}")
-    private String CLIENT_ID;
-
-    @Value("${hh.client.secret}")
-    private String CLIENT_SECRET;
-
-    @Value("${hh.redirect.uri}")
-    private String REDIRECT_URI;
+    private final String CLIENT_ID = HhApiConfig.CLIENT_ID;
+    private final String CLIENT_SECRET = HhApiConfig.CLIENT_SECRET;
+    private final String REDIRECT_URI = HhApiConfig.REDIRECT_URI;
 
     private final WebClient webClient;
     private final UserRepository userRepository;

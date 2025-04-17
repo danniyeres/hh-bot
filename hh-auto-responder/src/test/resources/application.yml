@@ -11,10 +11,3 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
-
-hh:
-  client:
-    id: test_client_id
-    secret: test_client_secret
-  redirect:
-    uri: http://localhost:8080/oauth/callback

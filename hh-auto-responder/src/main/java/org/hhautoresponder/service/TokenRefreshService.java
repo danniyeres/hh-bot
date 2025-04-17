@@ -2,6 +2,7 @@ package org.hhautoresponder.service;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hhautoresponder.config.HhApiConfig;
 import org.hhautoresponder.dto.user.OAuthResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,8 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class TokenRefreshService {
 
-    @Value("${hh.client.id}")
-    private String CLIENT_ID;
-
-    @Value("${hh.client.secret}")
-    private String CLIENT_SECRET;
+    private final String CLIENT_ID = HhApiConfig.CLIENT_ID;
+    private final String CLIENT_SECRET = HhApiConfig.CLIENT_SECRET;
 
     private final WebClient webClient;
 

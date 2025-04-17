@@ -13,6 +13,8 @@ services:
         always
     depends_on:
       - hh-auto-responder
+    networks:
+      - hh-bot-network
 
 
   hh-auto-responder:
@@ -26,6 +28,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://hh_postgres_db:5432/hh_bot
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+    env_file:
+      - ./hh-auto-responder/.env
     networks:
       - hh-bot-network
     depends_on:
